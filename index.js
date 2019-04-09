@@ -45,10 +45,14 @@ function fetch({ url, mattermostUrl, dbFileName, iconUrl, username, channel, aut
 
             // if the post is already in db, we have already send it to mattermost…
             if (itemInDb) {
+                return
+
                 //… so if the total shares count did not change, we choose to not resend it
-                if (itemInDb["buzzsumo:shares"]["buzzsumo:total"]['#'] <= item["buzzsumo:shares"]["buzzsumo:total"]['#']) {
-                    return;
-                }
+                // console.log('db', itemInDb["buzzsumo:shares"]["buzzsumo:total"]['#']);
+                // console.log('item', item["buzzsumo:shares"]["buzzsumo:total"]['#']);
+                // if (itemInDb["buzzsumo:shares"]["buzzsumo:total"]['#'] <= item["buzzsumo:shares"]["buzzsumo:total"]['#']) {
+                //     return;
+                // }
             }
 
             const sanitizedDescription = item.description.substring(0, item.description.indexOf('<'));
