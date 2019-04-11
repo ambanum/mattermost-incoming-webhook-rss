@@ -5,7 +5,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const schedule = require('node-schedule');
 
-function fetch({ url, mattermostUrl, dbFileName, iconUrl, username, channel, author, authorIconUrl, color}) {
+function fetch({ url, mattermostUrl, dbFileName, iconUrl, username, channel, author, authorIconUrl, color, action }) {
     console.log(`Fetch ${url}`);
     const req = request(url);
     const feedparser = new FeedParser();
@@ -56,35 +56,60 @@ function fetch({ url, mattermostUrl, dbFileName, iconUrl, username, channel, aut
             }
 
             const sanitizedDescription = item.description.substring(0, item.description.indexOf('<'));
-
-            await request({
-                url: mattermostUrl,
-                method: 'POST',
-                json: {
-                    response_type: 'in_channel',
-                    username: username,
-                    icon_url: iconUrl,
-                    channel: channel,
-                    attachments: [
-                        {
-                            "author_name": author || item.author,
-                            "author_icon": authorIconUrl, 
-                            "author_link": item.link, 
-                            "title": item.title,
-                            "title_link": item.link,
-                            "color": color,
-                            "text": 
-`
+            const messageContent = `
 ${sanitizedDescription}
 
 **Total engagement: ${item["buzzsumo:shares"]["buzzsumo:total"]['#']}**
 Facebook: ${item["buzzsumo:shares"]["buzzsumo:facebook"]['#']}    Twitter: ${item["buzzsumo:shares"]["buzzsumo:twitter"]['#']}    Pinterest: ${item["buzzsumo:shares"]["buzzsumo:pinterest"]['#']}    Reddit: ${item["buzzsumo:shares"]["buzzsumo:reddit"]['#']}
 
-**Publication date:** ${item.pubDate}
-`
-                        }
-                    ]
-                },
+**Publication date:** ${item.pubDate}`;
+            const json = {
+                response_type: 'in_channel',
+                username: username,
+                icon_url: iconUrl,
+                channel: channel,
+                attachments: [
+                    {
+                        "author_name": author || item.author,
+                        "author_icon": authorIconUrl,
+                        "author_link": item.link,
+                        "title": item.title,
+                        "title_link": item.link,
+                        "color": color,
+                        "text": messageContent,
+                        "actions": [
+                            {
+                                "name": "Send to [FR] Analysis channel",
+                                "integration": {
+                                    "url": action.url,
+                                    "context": {
+                                        response_type: 'in_channel',
+                                        username: username,
+                                        icon_url: iconUrl,
+                                        channel: action.targetChannel,
+                                        attachments: [
+                                            {
+                                                "author_name": author || item.author,
+                                                "author_icon": authorIconUrl,
+                                                "author_link": item.link,
+                                                "title": item.title,
+                                                "title_link": item.link,
+                                                "color": color,
+                                                "text": messageContent
+                                            }
+                                        ],
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ],
+            };
+
+            await request({
+                url: mattermostUrl,
+                method: 'POST',
+                json,
             }).then((response) => {
                 db.get('posts')
                     .push(item)
