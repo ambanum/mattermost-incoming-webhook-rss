@@ -1,21 +1,12 @@
 const config = require('config');
 const FeedParser = require('feedparser');
 const request = require('request-promise');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
 const schedule = require('node-schedule');
 
-function fetch({ url, mattermostUrl, dbFileName, iconUrl, username, channel, author, authorIconUrl, color, action }) {
-    console.log(`Fetch ${url}`);
-    const req = request(url);
+function fetch(options, handler) {
+    console.log(`Fetch ${options.url}`);
+    const req = request(options.url);
     const feedparser = new FeedParser();
-
-    const adapter = new FileSync(`./db/${dbFileName}.json`);
-    const db = low(adapter);
-
-    // Set some defaults (required if your JSON file is empty)
-    db.defaults({ posts: [] }).write()
-
 
 
     req.on('error', console.error);
@@ -34,87 +25,12 @@ function fetch({ url, mattermostUrl, dbFileName, iconUrl, username, channel, aut
 
     feedparser.on('error', console.error);
     feedparser.on('readable', async function () {
-        const stream = this; // `this` is `feedparser`, which is a stream
+         // `this` is `feedparser`, which is a stream
+        const stream = this;
         let item;
 
         while (item = stream.read()) {
-            const itemInDb = db.get('posts')
-                // we identify items by their link as they are articles
-                .find({ link: item.link })
-                .value();
-
-            // if the post is already in db, we have already send it to mattermost…
-            if (itemInDb) {
-                return
-
-                //… so if the total shares count did not change, we choose to not resend it
-                // console.log('db', itemInDb["buzzsumo:shares"]["buzzsumo:total"]['#']);
-                // console.log('item', item["buzzsumo:shares"]["buzzsumo:total"]['#']);
-                // if (itemInDb["buzzsumo:shares"]["buzzsumo:total"]['#'] <= item["buzzsumo:shares"]["buzzsumo:total"]['#']) {
-                //     return;
-                // }
-            }
-
-            const sanitizedDescription = item.description.substring(0, item.description.indexOf('<'));
-            const messageContent = `
-${sanitizedDescription}
-
-**Total engagement: ${item["buzzsumo:shares"]["buzzsumo:total"]['#']}**
-Facebook: ${item["buzzsumo:shares"]["buzzsumo:facebook"]['#']}    Twitter: ${item["buzzsumo:shares"]["buzzsumo:twitter"]['#']}    Pinterest: ${item["buzzsumo:shares"]["buzzsumo:pinterest"]['#']}    Reddit: ${item["buzzsumo:shares"]["buzzsumo:reddit"]['#']}
-
-**Publication date:** ${item.pubDate}`;
-            const json = {
-                response_type: 'in_channel',
-                username: username,
-                icon_url: iconUrl,
-                channel: channel,
-                attachments: [
-                    {
-                        "author_name": author || item.author,
-                        "author_icon": authorIconUrl,
-                        "author_link": item.link,
-                        "title": item.title,
-                        "title_link": item.link,
-                        "color": color,
-                        "text": messageContent,
-                        "actions": [
-                            {
-                                "name": "Send to [FR] Analysis channel",
-                                "integration": {
-                                    "url": action.url,
-                                    "context": {
-                                        response_type: 'in_channel',
-                                        username: username,
-                                        icon_url: iconUrl,
-                                        channel: action.targetChannel,
-                                        attachments: [
-                                            {
-                                                "author_name": author || item.author,
-                                                "author_icon": authorIconUrl,
-                                                "author_link": item.link,
-                                                "title": item.title,
-                                                "title_link": item.link,
-                                                "color": color,
-                                                "text": messageContent
-                                            }
-                                        ],
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                ],
-            };
-
-            await request({
-                url: mattermostUrl,
-                method: 'POST',
-                json,
-            }).then((response) => {
-                db.get('posts')
-                    .push(item)
-                    .write();
-            });
+            await handler(item, options);
         }
     });
 }
@@ -124,7 +40,10 @@ var j = schedule.scheduleJob('*/1 * * * *', function () {
     console.log('Fetch feeds');
     const feeds = config.get('feeds');
 
-    Object.keys(feeds).forEach((feed) => {
-        fetch(feeds[feed]);
+    Object.keys(feeds).forEach((feedName) => {
+        const { init, handler } = require(`./handlers/${feeds[feedName].handler}/index.js`);
+        
+        init(feeds[feedName].dbFileName);
+        fetch(feeds[feedName], handler);
     });
 });
