@@ -13,14 +13,14 @@ function init(dbFileName) {
     dbs[dbFileName] = db;
 }
 
-async function handler(item, { dbFileName, mattermostUrl, iconUrl, username, channel, author, authorIconUrl, color, action }) {    
-    const db = dbs[dbFileName];
+async function handler(feedName, item, { mattermost }) {    
+    const db = dbs[feedName];
     const itemInDb = db.get('posts')
         // Posts are uniquely identified by their link URL
         .find({ link: item.link })
         .value();
 
-    // if the post is already in db, it has already been sent to mattermost so nothing to do
+    // if the post is already in db, it has already been sent to mattermost, so nothing to do…
     if (itemInDb) {
         return;
     }
@@ -37,26 +37,23 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
 **Publication date:** ${item.pubDate}`;
 
     const commonAttachmentOptions = {
-        "author_name": author || item.author,
-        "author_icon": authorIconUrl,
+        "author_name": mattermost.attachment.author || item.author,
+        "author_icon": mattermost.attachment.authorIconUrl,
         "author_link": item.link,
         "title": item.title,
         "title_link": item.link,
-        "color": color,
+        "color": mattermost.attachment.color,
         "text": messageContent
-    };
+    };    
 
     const actionAttachmentOptions = {
         "actions": [
             {
                 "name": "Send to [FR] Analysis channel",
                 "integration": {
-                    "url": action.url,
+                    "url": mattermost.action.incomingWebhookUrl,
                     "context": {
                         response_type: 'in_channel',
-                        username: username,
-                        icon_url: iconUrl,
-                        channel: action.targetChannel,
                         attachments: [commonAttachmentOptions],
                     }
                 }
@@ -66,14 +63,11 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
 
     const json = {
         response_type: 'in_channel',
-        username: username,
-        icon_url: iconUrl,
-        channel: channel,
         attachments: [Object.assign(actionAttachmentOptions, commonAttachmentOptions)],
     };
 
     await request({
-        url: mattermostUrl,
+        url: mattermost.incomingWebhookUrl,
         method: 'POST',
         json,
     }).then((response) => {

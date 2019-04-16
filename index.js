@@ -3,9 +3,9 @@ const FeedParser = require('feedparser');
 const request = require('request-promise');
 const schedule = require('node-schedule');
 
-function fetch(options, handler) {
-    console.log(`Fetch ${options.url}`);
-    const req = request(options.url);
+function fetch(feedName, options, handler) {
+    console.log(`Fetch ${options.feedUrl}`);
+    const req = request(options.feedUrl);
     const feedparser = new FeedParser();
 
 
@@ -30,20 +30,20 @@ function fetch(options, handler) {
         let item;
 
         while (item = stream.read()) {
-            await handler(item, options);
+            await handler(feedName, item, options);
         }
     });
 }
 
 console.log('Start mattermost-incoming-webhook-rss')
-var j = schedule.scheduleJob('*/1 * * * *', function () {
+schedule.scheduleJob('*/1 * * * *', function () {
     console.log('Fetch feeds');
-    const feeds = config.get('feeds');
+    const feedsConfig = config.get('feeds');
 
-    Object.keys(feeds).forEach((feedName) => {
-        const { init, handler } = require(`./handlers/${feeds[feedName].handler}/index.js`);
+    Object.keys(feedsConfig).forEach((feedName) => {
+        const { init, handler } = require(`./handlers/${feedsConfig[feedName].handler}/index.js`);
         
-        init(feeds[feedName].dbFileName);
-        fetch(feeds[feedName], handler);
+        init(feedName);
+        fetch(feedName, feedsConfig[feedName], handler);
     });
 });
