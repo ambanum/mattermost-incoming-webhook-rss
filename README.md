@@ -1,7 +1,5 @@
 Allows to subscribe to RSS feeds and to send feeds' updates to a Mattermost.
 
-Feeds will be fetched every minute and only new content will be sent to Mattermost.
-
 # Installation
 
 ```
@@ -52,3 +50,5 @@ Create or modify the `default.json` config file in the `config` folder to add a 
 ```
 node index.js
 ```
+
+Feeds will be fetched every minute and only new content will be sent to Mattermost.
