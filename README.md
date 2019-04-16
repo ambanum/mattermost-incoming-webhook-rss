@@ -8,12 +8,12 @@ npm install
 
 # Configuration
 
-Create a config file `config` folder:
+Create or modify the `default.json` config file `config` folder to add a RSS feed:
 ```
 {
     "feeds": {
         "<feed name>": {
-            "handler": "buzzsumo",
+            "handler": "buzzsumo", // for now, only the buzzsumo handler is available
             "url": "<feed url>",
             "mattermostUrl": "<mattermost incoming webhook url>",
             "dbFileName": "<database file name to store feed items>",
