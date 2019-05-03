@@ -13,7 +13,7 @@ function init(dbFileName) {
     dbs[dbFileName] = db;
 }
 
-async function handler(feedName, item, { mattermost }) {    
+async function handler(feedName, item, { mattermost }) {
     const db = dbs[feedName];
     const itemInDb = db.get('posts')
         // Posts are uniquely identified by their link URL
@@ -28,10 +28,11 @@ async function handler(feedName, item, { mattermost }) {
     // Remove everything after the first HTML tag
     const sanitizedDescription = item.description.substring(0, item.description.indexOf('<'));
     const shares = item["buzzsumo:shares"];
+    const totalShares = shares["buzzsumo:total"]['#'];
     const messageContent = `
 ${sanitizedDescription}
 
-**Total engagement: ${shares["buzzsumo:total"]['#']}**
+**Total engagement: ${totalShares}**
 Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twitter"]['#']}    Pinterest: ${shares["buzzsumo:pinterest"]['#']}    Reddit: ${shares["buzzsumo:reddit"]['#']}
 
 **Publication date:** ${item.pubDate}`;
@@ -44,17 +45,30 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
         "title_link": item.link,
         "color": mattermost.attachment.color,
         "text": messageContent
-    };    
+    };
 
     const actionAttachmentOptions = {
         "actions": [
             {
                 "name": "Send to [FR] Analysis channel",
                 "integration": {
-                    "url": mattermost.action.incomingWebhookUrl,
+                    "url": mattermost.actions.urls.sendToAnalysis,
                     "context": {
                         response_type: 'in_channel',
+                        region: "fr", // we assume that for only french media-scale is available
+                        shares: totalShares,
                         attachments: [commonAttachmentOptions],
+                    }
+                }
+            },
+            {
+                "name": "Scale",
+                "integration": {
+                    "url": mattermost.actions.urls.mediaScale,
+                    "context": {
+                        region: "fr", // we assume that for only french media-scale is available
+                        shares: totalShares,
+                        url: mattermost.actions.urls.mediaScaleResponseUrl
                     }
                 }
             }
@@ -74,7 +88,9 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
         db.get('posts')
             .push(item)
             .write();
-    });
+    }).catch((e) => {
+		console.error(e);
+	});
 }
 
 module.exports = {
