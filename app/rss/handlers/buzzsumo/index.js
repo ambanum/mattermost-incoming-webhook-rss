@@ -37,7 +37,9 @@ ${sanitizedDescription}
 **Total engagement: ${totalShares}**
 Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twitter"]['#']}    Pinterest: ${shares["buzzsumo:pinterest"]['#']}    Reddit: ${shares["buzzsumo:reddit"]['#']}
 
-**Publication date:** ${item.pubDate}`;
+**Publication date:** ${item.pubDate}
+
+_Data from Buzzsumo.com_`;
 
     const commonAttachmentOptions = {
         "author_name": mattermost.attachment.author || item.author,
