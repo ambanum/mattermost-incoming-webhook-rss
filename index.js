@@ -1,49 +1,15 @@
-const config = require('config');
-const FeedParser = require('feedparser');
-const request = require('request-promise');
 const schedule = require('node-schedule');
+const rss = require('./app/rss');
+const algoTransparency = require('./app/algoTransparency');
 
-function fetch(feedName, options, handler) {
-    console.log(`Fetch ${options.feedUrl}`);
-    const req = request(options.feedUrl);
-    const feedparser = new FeedParser();
+console.log('Start Panoptès');
 
-
-    req.on('error', console.error);
-    req.on('response', function (res) {
-        // `this` is `req`, which is a stream
-        const stream = this;
-
-        if (res.statusCode !== 200) {
-            return this.emit('error', new Error('Bad status code'));
-        }
-
-        stream.pipe(feedparser);
-    });
-
-
-
-    feedparser.on('error', console.error);
-    feedparser.on('readable', async function () {
-         // `this` is `feedparser`, which is a stream
-        const stream = this;
-        let item;
-
-        while (item = stream.read()) {
-            await handler(feedName, item, options);
-        }
-    });
-}
-
-console.log('Start mattermost-incoming-webhook-rss')
+// Fetch RSS feeds every minutes
 schedule.scheduleJob('*/1 * * * *', function () {
-    console.log('Fetch feeds');
-    const feedsConfig = config.get('feeds');
+	rss.fetchFeeds();
+});
 
-    Object.keys(feedsConfig).forEach((feedName) => {
-        const { init, handler } = require(`./handlers/${feedsConfig[feedName].handler}/index.js`);
-        
-        init(feedName);
-        fetch(feedName, feedsConfig[feedName], handler);
-    });
+// Fetch Top recommended videos every day at 8am
+schedule.scheduleJob('0 8 * * *', function () {
+	algoTransparency.fetchVideos();
 });

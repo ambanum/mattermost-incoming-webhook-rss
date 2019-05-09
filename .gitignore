@@ -1,2 +1,2 @@
-db/*.json
+app/rss/db/*.json
 config/*.json

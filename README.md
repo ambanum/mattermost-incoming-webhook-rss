@@ -1,4 +1,4 @@
-Allows to subscribe to RSS feeds and to send feeds' updates to a Mattermost.
+In the context of disinformation, Panoptès fetch content from different detectors and sends formatted messages to Mattermost
 
 # Installation
 
@@ -11,22 +11,45 @@ npm install
 Create or modify the `default.json` config file in the `config` folder to add a RSS feed, here is an example:
 ```json
 {
-    "feeds": {
-        "LeMonde": {
-            "handler": "buzzsumo",
-            "feedUrl": "https://www.lemonde.fr/rss/une.xml",
+    "sources": {
+        "rss":{
+            "LeMonde": {
+                "handler": "buzzsumo",
+                "feedUrl": "https://www.lemonde.fr/rss/une.xml",
+                "mattermost": {
+                    "incomingWebhookUrl": "http://localhost:8065/hooks/dijcdr5s1tfajy8yorqwii4rny",
+                    "actions": {
+                        "urls": {
+                            "sendToAnalysis": "http://host.docker.internal:3000/sendToAnalysis",
+                            "mediaScale": "http://host.docker.internal:3000/media-scale",
+                            "mediaScaleResponseUrl": "http://localhost:8065/hooks/ff7utwjdwjnxzkonh9ni9f4shh"
+                        }
+                    },
+                    "attachment": {
+                        "author": "Le monde",
+                        "authorIconUrl": "https://pbs.twimg.com/profile_images/817042499134980096/LTpqSDMM.jpg",
+                        "color": "#88BB3E"
+                    }
+                }
+            },
+        },
+        "algoTransparency": {
+            "baseUrl": "https://algotransparency.org/data/france/",
+            "maxItems": 5,
             "mattermost": {
-                "incomingWebhookUrl": "http://my-mattermost-server.fr/hooks/dijcdr5s1tfajy8yorqwii4rny",
-                "action": {
-                    "incomingWebhookUrl": "http://my-mattermost-server.fr/integrations/sendToAnalysis"
+                "incomingWebhookUrl": "http://localhost:8065/hooks/dijcdr5s1tfajy8yorqwii4rny",
+                "actions": {
+                    "urls": {
+                        "sendToAnalysis": "http://host.docker.internal:3000/sendToAnalysis"
+                    }
                 },
                 "attachment": {
-                    "author": "Le Monde",
-                    "authorIconUrl": "http://www.userlogos.org/files/logos/1air2philou/lemonde-iconAndroid-forFastDial.png",
-                    "color": "#286B98"
+                    "author": "Youtube France",
+                    "authorIconUrl": "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-color-shapes-2-free/128/social-youtube-circle-512.png",
+                    "color": "#c4302b"
                 }
             }
-        },
+        }
     },
 }
 ```

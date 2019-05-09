@@ -1,11 +1,13 @@
 const request = require('request-promise');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const path = require('path');
 
 const dbs = {};
 
 function init(dbFileName) {
-    const adapter = new FileSync(`./db/${dbFileName}.json`);
+    const dbPath = path.join(__dirname, '..', '..', 'db', `${dbFileName}.json`);
+    const adapter = new FileSync(dbPath);
     const db = low(adapter);
     // Set some defaults (required if your JSON file is empty)
     db.defaults({ posts: [] }).write();
@@ -35,7 +37,9 @@ ${sanitizedDescription}
 **Total engagement: ${totalShares}**
 Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twitter"]['#']}    Pinterest: ${shares["buzzsumo:pinterest"]['#']}    Reddit: ${shares["buzzsumo:reddit"]['#']}
 
-**Publication date:** ${item.pubDate}`;
+**Publication date:** ${item.pubDate}
+
+_Data from Buzzsumo.com_`;
 
     const commonAttachmentOptions = {
         "author_name": mattermost.attachment.author || item.author,
@@ -79,6 +83,8 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
         response_type: 'in_channel',
         attachments: [Object.assign(actionAttachmentOptions, commonAttachmentOptions)],
     };
+
+    console.log(`Article from ${mattermost.attachment.author}: ${item.title}`)
 
     await request({
         url: mattermost.incomingWebhookUrl,
