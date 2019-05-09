@@ -3,7 +3,7 @@ const FeedParser = require('feedparser');
 const request = require('request-promise');
 
 function fetch(feedName, options, handler) {
-    console.log(`Fetch ${options.feedUrl}`);
+    console.log(`Fetch RSS ${options.feedUrl}`);
     const req = request(options.feedUrl);
     const feedparser = new FeedParser();
 

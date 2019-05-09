@@ -82,6 +82,8 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
         attachments: [Object.assign(actionAttachmentOptions, commonAttachmentOptions)],
     };
 
+    console.log(`Article from ${mattermost.attachment.author}: ${item.title}`)
+
     await request({
         url: mattermost.incomingWebhookUrl,
         method: 'POST',
