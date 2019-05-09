@@ -5,5 +5,5 @@ console.log('Start Panoptès');
 
 // Fetch RSS feeds every minutes
 schedule.scheduleJob('*/1 * * * *', function () {
-	rss.fetchContent();
+	rss.fetchFeeds();
 });

@@ -34,7 +34,7 @@ function fetch(feedName, options, handler) {
     });
 }
 
-function fetchContent() {
+function fetchFeeds() {
 	console.log('Fetch RSS content');
     const feedsConfig = config.get('sources.rss');
 
@@ -47,5 +47,5 @@ function fetchContent() {
 };
 
 module.exports = {
-    fetchContent
+    fetchFeeds
 }
