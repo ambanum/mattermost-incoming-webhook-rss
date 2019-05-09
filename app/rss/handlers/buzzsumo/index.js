@@ -1,11 +1,13 @@
 const request = require('request-promise');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const path = require('path');
 
 const dbs = {};
 
 function init(dbFileName) {
-    const adapter = new FileSync(`./db/${dbFileName}.json`);
+    const dbPath = path.join(__dirname, '..', '..', 'db', `${dbFileName}.json`);
+    const adapter = new FileSync(dbPath);
     const db = low(adapter);
     // Set some defaults (required if your JSON file is empty)
     db.defaults({ posts: [] }).write();
