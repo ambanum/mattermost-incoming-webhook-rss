@@ -1,10 +1,14 @@
 const config = require('config');
 const FeedParser = require('feedparser');
 const request = require('request-promise');
+const {
+    init,
+    handler
+} = require('./handlers/buzzsumo');
 
-function fetch(feedName, options, handler) {
-    console.log(`Fetch RSS ${options.feedUrl}`);
-    const req = request(options.feedUrl);
+function fetch(feedName, feedConfig, mattermostConfig, handler) {
+    console.log(`Fetch RSS ${feedConfig.feedUrl}`);
+    const req = request(feedConfig.feedUrl);
     const feedparser = new FeedParser();
 
 
@@ -29,20 +33,19 @@ function fetch(feedName, options, handler) {
         let item;
 
         while (item = stream.read()) {
-            await handler(feedName, item, options);
+            await handler(feedName, item, feedConfig, mattermostConfig);
         }
     });
 }
 
 function fetchFeeds() {
 	console.log('Fetch RSS content');
+    const mattermostConfig = config.get('mattermost');
     const feedsConfig = config.get('sources.rss');
 
     Object.keys(feedsConfig).forEach((feedName) => {
-        const { init, handler } = require(`./handlers/${feedsConfig[feedName].handler}/index.js`);
-
         init(feedName);
-        fetch(feedName, feedsConfig[feedName], handler);
+        fetch(feedName, feedsConfig[feedName], mattermostConfig, handler);
     });
 };
 

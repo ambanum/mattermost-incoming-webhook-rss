@@ -3,11 +3,9 @@ const config = require('config');
 const moment = require('moment');
 
 function fetchVideos() {
-	const {
-		mattermost,
-		maxItems,
-		baseUrl
-	} = config.get('sources.algoTransparency');
+	const { message, maxItems, baseUrl } = config.get('sources.algoTransparency');
+	const mattermostConfig = config.get('mattermost');
+
 	const yesterday = moment().subtract(1, 'days').format('DD-MM-YYYY');
 	const url = `${baseUrl}france-${yesterday}.json`;
 
@@ -21,11 +19,11 @@ function fetchVideos() {
 			topRecommandedVideos.forEach(async (video) => {
 
 				const commonAttachmentOptions = {
-					"author_name": `${mattermost.attachment.author} : ${video.channel}`,
-					"author_icon": mattermost.attachment.authorIconUrl,
+					"author_name": `${message.author} : ${video.channel}`,
+					"author_icon": message.authorIconUrl,
 					"title": video.title,
 					"title_link": `https://www.youtube.com/watch?v=${video.id}`,
-					"color": mattermost.attachment.color,
+					"color": message.color,
 					"text": `
 Views: **${video.views}**
 Recommendations: **${video.nb_recommendations}**	Likes: ${video.likes}	Dislikes: ${video.dislikes}
@@ -37,7 +35,7 @@ _Data from AlgoTransparency.org_`
 					"actions": [{
 						"name": "Send to [FR] Analysis channel",
 						"integration": {
-							"url": mattermost.actions.urls.sendToAnalysis,
+							"url": mattermostConfig.actions.urls.sendToAnalysis,
 							"context": {
 								response_type: 'in_channel',
 								attachments: [commonAttachmentOptions],
@@ -54,7 +52,7 @@ _Data from AlgoTransparency.org_`
 				console.log(`Video: ${video.nb_recommendations} ${video.title}`);
 
 				await request({
-					url: mattermost.incomingWebhookUrl,
+					url: mattermostConfig.incomingWebhookUrl,
 					method: 'POST',
 					json,
 				});

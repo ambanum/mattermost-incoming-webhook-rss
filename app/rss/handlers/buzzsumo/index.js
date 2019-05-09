@@ -15,7 +15,7 @@ function init(dbFileName) {
     dbs[dbFileName] = db;
 }
 
-async function handler(feedName, item, { mattermost }) {
+async function handler(feedName, item, { message }, mattermostConfig) {
     const db = dbs[feedName];
     const itemInDb = db.get('posts')
         // Posts are uniquely identified by their link URL
@@ -42,12 +42,12 @@ Facebook: ${shares["buzzsumo:facebook"]['#']}    Twitter: ${shares["buzzsumo:twi
 _Data from Buzzsumo.com_`;
 
     const commonAttachmentOptions = {
-        "author_name": mattermost.attachment.author || item.author,
-        "author_icon": mattermost.attachment.authorIconUrl,
+        "author_name": message.author || item.author,
+        "author_icon": message.authorIconUrl,
         "author_link": item.link,
         "title": item.title,
         "title_link": item.link,
-        "color": mattermost.attachment.color,
+        "color": message.color,
         "text": messageContent
     };
 
@@ -56,7 +56,7 @@ _Data from Buzzsumo.com_`;
             {
                 "name": "Send to [FR] Analysis channel",
                 "integration": {
-                    "url": mattermost.actions.urls.sendToAnalysis,
+                    "url": mattermostConfig.actions.urls.sendToAnalysis,
                     "context": {
                         response_type: 'in_channel',
                         region: "fr", // we assume that for only french media-scale is available
@@ -68,11 +68,11 @@ _Data from Buzzsumo.com_`;
             {
                 "name": "Scale",
                 "integration": {
-                    "url": mattermost.actions.urls.mediaScale,
+                    "url": mattermostConfig.actions.urls.mediaScale,
                     "context": {
                         region: "fr", // we assume that for only french media-scale is available
                         shares: totalShares,
-                        url: mattermost.actions.urls.mediaScaleResponseUrl
+                        url: mattermostConfig.incomingWebhookUrl
                     }
                 }
             }
@@ -84,10 +84,10 @@ _Data from Buzzsumo.com_`;
         attachments: [Object.assign(actionAttachmentOptions, commonAttachmentOptions)],
     };
 
-    console.log(`Article from ${mattermost.attachment.author}: ${item.title}`)
+    console.log(`Article from ${message.author}: ${item.title}`)
 
     await request({
-        url: mattermost.incomingWebhookUrl,
+        url: mattermostConfig.incomingWebhookUrl,
         method: 'POST',
         json,
     }).then((response) => {
