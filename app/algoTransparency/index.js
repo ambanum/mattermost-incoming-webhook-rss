@@ -8,7 +8,7 @@ function fetchVideos() {
 		maxItems,
 		baseUrl
 	} = config.get('sources.algoTransparency');
-	const yesterday = moment().subtract(2, 'days').format('DD-MM-YYYY');
+	const yesterday = moment().subtract(1, 'days').format('DD-MM-YYYY');
 	const url = `${baseUrl}france-${yesterday}.json`;
 
 	request(url)
