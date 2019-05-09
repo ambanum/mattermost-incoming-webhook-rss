@@ -33,15 +33,23 @@ Create or modify the `default.json` config file in the `config` folder to add a 
                 }
             },
         },
+        "algoTransparency": {
+            "baseUrl": "https://algotransparency.org/data/france/",
+            "maxItems": 5,
             "mattermost": {
-                "incomingWebhookUrl": "http://my-mattermost-server.fr/hooks/dijcdr5s1tfajy8yorqwii4rny",
-                "action": {
-                    "incomingWebhookUrl": "http://my-mattermost-server.fr/integrations/sendToAnalysis"
+                "incomingWebhookUrl": "http://localhost:8065/hooks/dijcdr5s1tfajy8yorqwii4rny",
+                "actions": {
+                    "urls": {
+                        "sendToAnalysis": "http://host.docker.internal:3000/sendToAnalysis"
+                    }
                 },
                 "attachment": {
+                    "author": "Youtube France",
+                    "authorIconUrl": "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-color-shapes-2-free/128/social-youtube-circle-512.png",
+                    "color": "#c4302b"
                 }
             }
-        },
+        }
     },
 }
 ```
