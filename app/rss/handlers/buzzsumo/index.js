@@ -72,7 +72,7 @@ _Data from Buzzsumo.com_`;
                     "context": {
                         region: "fr", // we assume that for only french media-scale is available
                         shares: totalShares,
-                        url: mattermostConfig.incomingWebhookUrl
+                        url: mattermostConfig.actions.urls.mediaScaleResponseUrl
                     }
                 }
             }
