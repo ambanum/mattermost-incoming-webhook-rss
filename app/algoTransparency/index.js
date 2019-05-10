@@ -19,7 +19,7 @@ function fetchVideos() {
 			topRecommandedVideos.forEach(async (video) => {
 
 				const commonAttachmentOptions = {
-					"author_name": `${message.author} : ${video.channel}`,
+					"author_name": `${message.author} : chaîne « ${video.channel} »`,
 					"author_icon": message.authorIconUrl,
 					"title": video.title,
 					"title_link": `https://www.youtube.com/watch?v=${video.id}`,
