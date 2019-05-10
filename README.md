@@ -20,17 +20,17 @@ First of all you have to configure mattermost integrations'url in the `config/de
 			}
 		}
 	},
-…
+	…
 }
 ```
 
 - `mattermost.incomingWebhookUrl`: URL of the incoming webhook created to receive requests. An incoming webhook must be created on your Mattermost server. [See Mattermost Incoming Webhooks documentation for more information](https://docs.mattermost.com/developer/webhooks-incoming.html).
 
 - `mattermost.actions.urls.sendToAnalysis`: URL of the action to send message to Analysis channel.
-- `mattermost.actions.urls.mediaScale`: URL of the action to call media-scale.
+- `mattermost.actions.urls.mediaScale`: URL of the action to call [media-scale](https://github.com/ambanum/media-scale).
+- `mattermost.actions.urls.mediaScaleResponseUrl`: URL of the incoming webhook from [media-scale](https://github.com/ambanum/media-scale).
 
-
-Then you have to add some sources. There are two kinds of sources supported for now, RSS feeds from Buzzsumo and [AlgoTransparency.org](https://algotransparency.org/).
+Then you have to add some sources. There are two kinds of sources supported for now, RSS feeds from Buzzsumo and JSON files from [AlgoTransparency.org](https://algotransparency.org/).
 
 ```json
 {
@@ -39,8 +39,8 @@ Then you have to add some sources. There are two kinds of sources supported for 
 	},
 	"sources": {
 		"rss": {
-			"rt": {
-				"feedUrl": "https://www.lemonde.fr/rss/une.xml",
+			"lemonde": {
+				"feedUrl": "https://app.buzzsumo.com/rss/alerts/ODJHGFTUxa2p87jhgqsdjfh%3D",
 				"message": {
 					"author": "Le monde",
 					"authorIconUrl": "https://pbs.twimg.com/profile_images/817042499134980096/LTpqSDMM.jpg",
@@ -64,13 +64,13 @@ For RSS source:
 - `feedUrl`: RSS feed URL.
 
 For AlgoTransparency source:
-- `baseUrl`: Url of the data from AlgoTransparency
+- `baseUrl`: URL of the folder containing JSON daily files from AlgoTransparency
 - `maxItems`: Max number of videos to display every day
 
 For both:
-- `message.author`: Author name to display in the Mattermost's attachment
-- `message.authorIconUrl`: Author icon or logo URL to display in the Mattermost's attachment
-- `message.color`: Color to display in the Mattermost's attachment
+- `message.author`: Author name to display in the [Mattermost attachment](https://docs.mattermost.com/developer/message-attachments.html)
+- `message.authorIconUrl`: Author icon or logo URL to display in the [Mattermost attachment](https://docs.mattermost.com/developer/message-attachments.html)
+- `message.color`: Color to display in the [Mattermost attachment](https://docs.mattermost.com/developer/message-attachments.html)
 
 
 # Usage
@@ -79,4 +79,5 @@ For both:
 node index.js
 ```
 
-Feeds will be fetched every minute and only new content will be sent to Mattermost.
+- RSS Feeds will be fetched every minute and only new content will be sent to Mattermost.
+- AlgoTransparency will be fetched daily and only the top `maxItems` most recommended videos will be sent to Mattermost.
