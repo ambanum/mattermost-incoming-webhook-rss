@@ -1,4 +1,4 @@
-In the context of disinformation, Panoptès fetch content from different detectors and sends formatted messages to Mattermost
+In the context of disinformation, Panoptès fetches content from different detectors and sends formatted messages to Mattermost
 
 # Installation
 
