@@ -1,26 +1,38 @@
-In the context of disinformation, Panoptès fetches content from different detectors and sends formatted messages to Mattermost
+Panoptès fetches content from different detectors of potential disinformation and sends formatted messages to a server Mattermost
 
-# Installation
+> Panoptès récupère le contenu de différents détecteurs de désinformation potentielle et envoie des messages formatés à un serveur Mattermost.
 
-```
+- - -
+
+## Development
+
+This API is built with [Node](https://nodejs.org/en/). You will need to [install it](https://nodejs.org/en/download/) to run this API.
+
+### Installation
+
+Clone the repository and install dependencies:
+
+```sh
+git clone https://github.com/ambanum/panoptes.git
+cd panoptes
 npm install
 ```
 
-# Configuration
+### Configuration
 
 First of all you have to configure mattermost integrations'url in the `config/default.json` file:
 ```json
 {
-	"mattermost": {
-		"incomingWebhookUrl": "http://localhost:8065/hooks/dijcdr5s1tfajy8yorqwii4rny",
-		"actions": {
-			"urls": {
-				"sendToAnalysis": "http://host.docker.internal:3000/sendToAnalysis",
-				"mediaScale": "http://host.docker.internal:3000/media-scale"
-			}
-		}
-	},
-	…
+    "mattermost": {
+        "incomingWebhookUrl": "http://localhost:8065/hooks/dijcdr5s1tfajy8yorqwii4rny",
+        "actions": {
+            "urls": {
+                "sendToAnalysis": "http://host.docker.internal:3000/sendToAnalysis",
+                "mediaScale": "http://host.docker.internal:3000/media-scale"
+            }
+        }
+    },
+    …
 }
 ```
 
@@ -34,30 +46,30 @@ Then you have to add some sources. There are two kinds of sources supported for 
 
 ```json
 {
-	"mattermost": {
-		…
-	},
-	"sources": {
-		"rss": {
-			"lemonde": {
-				"feedUrl": "https://app.buzzsumo.com/rss/alerts/ODJHGFTUxa2p87jhgqsdjfh%3D",
-				"message": {
-					"author": "Le monde",
-					"authorIconUrl": "https://pbs.twimg.com/profile_images/817042499134980096/LTpqSDMM.jpg",
-					"color": "#88BB3E"
-				}
-			},
-		},
-		"algoTransparency": {
-			"baseUrl": "https://algotransparency.org/data/france/",
-			"maxItems": 5,
-			"message": {
-				"author": "Youtube France",
-				"authorIconUrl": "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-color-shapes-2-free/128/social-youtube-circle-512.png",
-				"color": "#c4302b"
-			}
-		}
-	}
+    "mattermost": {
+        …
+    },
+    "sources": {
+        "rss": {
+            "lemonde": {
+                "feedUrl": "https://app.buzzsumo.com/rss/alerts/ODJHGFTUxa2p87jhgqsdjfh%3D",
+                "message": {
+                    "author": "Le monde",
+                    "authorIconUrl": "https://pbs.twimg.com/profile_images/817042499134980096/LTpqSDMM.jpg",
+                    "color": "#88BB3E"
+                }
+            },
+        },
+        "algoTransparency": {
+            "baseUrl": "https://algotransparency.org/data/france/",
+            "maxItems": 5,
+            "message": {
+                "author": "Youtube France",
+                "authorIconUrl": "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-color-shapes-2-free/128/social-youtube-circle-512.png",
+                "color": "#c4302b"
+            }
+        }
+    }
 }
 ```
 For RSS source:
@@ -73,7 +85,9 @@ For both:
 - `message.color`: Color to display in the [Mattermost attachment](https://docs.mattermost.com/developer/message-attachments.html)
 
 
-# Usage
+### Usage
+
+Run the code:
 
 ```
 node index.js
@@ -81,3 +95,15 @@ node index.js
 
 - RSS Feeds will be fetched every minute and only new content will be sent to Mattermost.
 - AlgoTransparency will be fetched daily and only the top `maxItems` most recommended videos will be sent to Mattermost.
+
+## Deployment
+
+Clone the repository on your server, install dependencies, configure the code for your production environement and run the server.
+We suggest to use a production process manager for Node.js like [pm2](https://github.com/Unitech/pm2) or [Forever](https://github.com/foreversd/forever#readme).
+
+- - -
+
+# License
+
+The code for this software is distributed under the European Union Public Licence (EUPL) v1.2.
+Contact the author if you have any specific need or question regarding licensing.
