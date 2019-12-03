@@ -101,6 +101,8 @@ node index.js
 Clone the repository on your server, install dependencies, configure the code for your production environement and run the server.
 We suggest to use a production process manager for Node.js like [pm2](https://github.com/Unitech/pm2) or [Forever](https://github.com/foreversd/forever#readme).
 
+For information on how we deploy this app, you can take a look at the role `panoptes` in our [disinfo.quaidorsay.fr-ops repository](https://github.com/ambanum/disinfo.quaidorsay.fr-ops.git)
+
 - - -
 
 # License
