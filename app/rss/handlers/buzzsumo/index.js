@@ -54,7 +54,7 @@ _Data from Buzzsumo.com_`;
     const actionAttachmentOptions = {
         "actions": [
             {
-                "name": "Send to [FR] Analysis channel",
+                "name": "Send to [FR] Qualification channel",
                 "integration": {
                     "url": mattermostConfig.actions.urls.sendToAnalysis,
                     "context": {
